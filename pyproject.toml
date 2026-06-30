@@ -10,6 +10,7 @@ requires-python = ">=3.14"
 dependencies = [
     "asyncio>=4.0.0",
     "httpx>=0.28.1",
+    "pytest>=9.1.1",
     "rich>=15.0.0",
     "textual>=8.2.7",
     "textual-dev>=1.8.0",
@@ -25,6 +26,8 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "ruff>=0.15.20",
+    "pytest-asyncio>=0.25.0",
+    "respx>=0.22.0",
 ]
 
 [tool.ruff]
@@ -32,3 +35,6 @@ line-length = 79
 
 [tool-ruff.lint]
 extend-select = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
