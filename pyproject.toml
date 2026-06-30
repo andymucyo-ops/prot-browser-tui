@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-app = "prot_browser_tui:main"
+app = "prot_browser_tui.app:main"
 
 [build-system]
 requires = ["uv_build>=0.10.9,<0.11.0"]
