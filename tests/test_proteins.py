@@ -6,7 +6,7 @@ import pytest
 import respx
 
 from prot_browser_tui import extract_display_data, get_search_results
-from prot_browser_tui.api import uniprot_api_url
+from prot_browser_tui.api import UNIPROT_API_URL
 
 
 class TestExtractDisplayData:
@@ -20,7 +20,7 @@ class TestExtractDisplayData:
         entry = data["entry n°1"]
         assert entry["Accession"] == "P01308"
         assert entry["UniprotKB ID"] == "INS_HUMAN"
-        assert entry["Organism name"] == "Homo sapiens (Human)"
+        assert entry["Organism Name"] == "Homo sapiens (Human)"
         assert entry["Common Name"] == "Insulin"
 
     def test_multiple_entries(
@@ -45,15 +45,15 @@ class TestExtractDisplayData:
         self,
         mock_protein_missing_common_name: dict[str, Any],
     ) -> None:
-        with pytest.raises(KeyError):
-            extract_display_data([mock_protein_missing_common_name])
+        data = extract_display_data([mock_protein_missing_common_name])
+        assert data["entry n°1"]["Organism Name"] == "Homo sapiens"
 
     def test_missing_recommended_name(
         self,
         mock_protein_missing_recommended_name: dict[str, Any],
     ) -> None:
-        with pytest.raises(KeyError):
-            extract_display_data([mock_protein_missing_recommended_name])
+        data = extract_display_data([mock_protein_missing_recommended_name])
+        assert data["entry n°1"]["Common Name"] == "N/A"
 
 
 class TestGetSearchResults:
@@ -62,11 +62,11 @@ class TestGetSearchResults:
         respx_mock: respx.MockRouter,
         mock_search_response: dict[str, Any],
     ) -> None:
-        respx_mock.get(uniprot_api_url).respond(
+        respx_mock.get(UNIPROT_API_URL).respond(
             status_code=200,
             json=mock_search_response,
         )
-        results = await get_search_results(uniprot_api_url, "insulin")
+        results = await get_search_results(UNIPROT_API_URL, "insulin")
 
         assert len(results) == 2
         assert results[0]["primaryAccession"] == "P01308"
@@ -77,11 +77,11 @@ class TestGetSearchResults:
         respx_mock: respx.MockRouter,
         mock_search_response: dict[str, Any],
     ) -> None:
-        route = respx_mock.get(uniprot_api_url).respond(
+        route = respx_mock.get(UNIPROT_API_URL).respond(
             status_code=200,
             json=mock_search_response,
         )
-        await get_search_results(uniprot_api_url, "ferritin", size=10)
+        await get_search_results(UNIPROT_API_URL, "ferritin", size=10)
 
         request = route.calls.last.request
         assert request.url.params["query"] == "ferritin"
@@ -93,59 +93,59 @@ class TestGetSearchResults:
         respx_mock: respx.MockRouter,
         mock_empty_response: dict[str, Any],
     ) -> None:
-        respx_mock.get(uniprot_api_url).respond(
+        respx_mock.get(UNIPROT_API_URL).respond(
             status_code=200,
             json=mock_empty_response,
         )
-        results = await get_search_results(uniprot_api_url, "nonexistent")
+        results = await get_search_results(UNIPROT_API_URL, "nonexistent")
         assert results == []
 
     async def test_search_http_404(
         self,
         respx_mock: respx.MockRouter,
     ) -> None:
-        respx_mock.get(uniprot_api_url).respond(status_code=404)
+        respx_mock.get(UNIPROT_API_URL).respond(status_code=404)
         with pytest.raises(httpx.HTTPStatusError):
-            await get_search_results(uniprot_api_url, "test")
+            await get_search_results(UNIPROT_API_URL, "test")
 
     async def test_search_http_500(
         self,
         respx_mock: respx.MockRouter,
     ) -> None:
-        respx_mock.get(uniprot_api_url).respond(status_code=500)
+        respx_mock.get(UNIPROT_API_URL).respond(status_code=500)
         with pytest.raises(httpx.HTTPStatusError):
-            await get_search_results(uniprot_api_url, "test")
+            await get_search_results(UNIPROT_API_URL, "test")
 
     async def test_search_connection_error(
         self,
         respx_mock: respx.MockRouter,
     ) -> None:
-        respx_mock.get(uniprot_api_url).mock(
+        respx_mock.get(UNIPROT_API_URL).mock(
             side_effect=httpx.ConnectError("connection refused"),
         )
         with pytest.raises(httpx.ConnectError):
-            await get_search_results(uniprot_api_url, "test")
+            await get_search_results(UNIPROT_API_URL, "test")
 
     async def test_search_timeout(
         self,
         respx_mock: respx.MockRouter,
     ) -> None:
-        respx_mock.get(uniprot_api_url).mock(
+        respx_mock.get(UNIPROT_API_URL).mock(
             side_effect=httpx.TimeoutException("timed out"),
         )
         with pytest.raises(httpx.TimeoutException):
-            await get_search_results(uniprot_api_url, "test")
+            await get_search_results(UNIPROT_API_URL, "test")
 
     async def test_search_malformed_json(
         self,
         respx_mock: respx.MockRouter,
     ) -> None:
-        respx_mock.get(uniprot_api_url).respond(
+        respx_mock.get(UNIPROT_API_URL).respond(
             status_code=200,
             content=b"not valid json",
         )
         with pytest.raises(json.JSONDecodeError):
-            await get_search_results(uniprot_api_url, "test")
+            await get_search_results(UNIPROT_API_URL, "test")
 
 
 class TestIntegration:
@@ -154,16 +154,16 @@ class TestIntegration:
         respx_mock: respx.MockRouter,
         mock_single_result: dict[str, Any],
     ) -> None:
-        respx_mock.get(uniprot_api_url).respond(
+        respx_mock.get(UNIPROT_API_URL).respond(
             status_code=200,
             json=mock_single_result,
         )
-        results = await get_search_results(uniprot_api_url, "insulin")
+        results = await get_search_results(UNIPROT_API_URL, "insulin")
         data = extract_display_data(results)
 
         assert len(data) == 1
         entry = data["entry n°1"]
         assert entry["Accession"] == "P01308"
         assert entry["UniprotKB ID"] == "INS_HUMAN"
-        assert entry["Organism name"] == "Homo sapiens (Human)"
+        assert entry["Organism Name"] == "Homo sapiens (Human)"
         assert entry["Common Name"] == "Insulin"
