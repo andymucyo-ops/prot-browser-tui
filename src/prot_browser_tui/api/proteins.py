@@ -8,6 +8,17 @@ from .helpers import get_organism_name, get_recommended_name
 UNIPROT_API_URL: str = "https://rest.uniprot.org/uniprotkb/search"
 
 async def get_search_results(url: str, prot_name: str, size: int=5) -> dict[str, Any] :
+    """
+    Gets results of in UniprotKB database from protein name.
+    -------------
+    Args:
+        - url: uniprotkb REST API url for search.
+        - prot_name: Protein name queried by the User.
+        - size: number of entry returned by the query.
+    -------------
+    Returns:
+        Dictonnary of n(size) entries containing informations about the payload fields.  
+    """
     payload = {
             "query": prot_name,
             "facets": "reviewed",
@@ -26,7 +37,16 @@ async def get_search_results(url: str, prot_name: str, size: int=5) -> dict[str,
         return response.json()["results"]
 
 
-def extract_display_data(response_json: dict[str: Any]):
+def extract_display_data(response_json: dict[str: str]):
+    """
+    Extracts data to be displayed in UI after research.
+    -------------
+    Args:
+        - response_json: take output of get_search_results() as input.
+    -------------
+    Returns:
+        - Dictornary[str: str], with key data to be displayed to the user
+    """
     display_data: dict[str, dict[str, str]] = {}
     entry_count: int = 1
 
