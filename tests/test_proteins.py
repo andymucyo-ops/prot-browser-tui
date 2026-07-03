@@ -39,7 +39,7 @@ class TestExtractDisplayData:
         assert data["entry n°3"]["Accession"] == "P60709"
 
     def test_empty_list(self) -> None:
-        assert extract_display_data([]) == {}
+        assert extract_display_data([]) == "Your research doesn't match any name in the database please try again."
 
     def test_missing_organism_common_name(
         self,
@@ -55,7 +55,7 @@ class TestExtractDisplayData:
         data = extract_display_data([mock_protein_missing_recommended_name])
         assert data["entry n°1"]["Common Name"] == "N/A"
 
-
+    
 class TestGetSearchResults:
     async def test_search_success(
         self,

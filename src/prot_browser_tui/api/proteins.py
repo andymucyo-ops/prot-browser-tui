@@ -1,6 +1,6 @@
 import asyncio
 from types import CoroutineType
-from typing import Any
+from typing import Any, Literal
 import httpx
 
 from .helpers import get_organism_name, get_recommended_name
@@ -37,7 +37,7 @@ async def get_search_results(url: str, prot_name: str, size: int=5) -> dict[str,
         return response.json()["results"]
 
 
-def extract_display_data(response_json: dict[str: str]):
+def extract_display_data(response_json: dict[str: str] | Literal):
     """
     Extracts data to be displayed in UI after research.
     -------------
@@ -47,6 +47,9 @@ def extract_display_data(response_json: dict[str: str]):
     Returns:
         - Dictornary[str: str], with key data to be displayed to the user
     """
+    if not response_json:
+        return "Your research doesn't match any name in the database please try again."
+
     display_data: dict[str, dict[str, str]] = {}
     entry_count: int = 1
 
