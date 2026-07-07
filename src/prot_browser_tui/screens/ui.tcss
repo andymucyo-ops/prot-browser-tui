@@ -1,0 +1,32 @@
+
+#browser {
+    height: 10;
+    margin: 4 8;
+    background: $panel;
+    color: $text;
+    border: tall $background;
+    padding: 1 2;
+}
+
+.title {
+    text-style: bold;
+    height: 50%;
+    content-align: center middle;
+}
+
+.input {
+    width: 100%;
+    height: auto;
+}
+
+#status {
+    width: 100%;
+    height: auto;
+}
+
+#results {
+    width: 100%;
+    height: auto;
+    display: none;
+    dock: bottom
+}

@@ -1,3 +1,13 @@
 
+
+
+from prot_browser_tui import BrowserApp
+
+
 def main() -> None:
-    print("Hello from prot-browser-tui!")
+    app = BrowserApp()
+    app.run()
+    
+    
+if __name__ == "__main__":
+    main()
