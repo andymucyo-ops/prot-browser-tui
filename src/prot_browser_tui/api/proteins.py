@@ -1,13 +1,13 @@
 import asyncio
 from types import CoroutineType
-from typing import Any, Literal
+from typing import Any
 import httpx
 
 from .helpers import get_organism_name, get_recommended_name
 
 UNIPROT_API_URL: str = "https://rest.uniprot.org/uniprotkb/search"
 
-async def get_search_results(url: str, prot_name: str, size: int=5) -> dict[str, Any] :
+async def get_search_results(url: str, prot_name: str, size: int=10) -> dict[str, Any] :
     """
     Gets results of in UniprotKB database from protein name.
     -------------
@@ -37,7 +37,7 @@ async def get_search_results(url: str, prot_name: str, size: int=5) -> dict[str,
         return response.json()["results"]
 
 
-def extract_display_data(response_json: dict[str: str] | Literal):
+def extract_display_data(response_json: dict[str: str] | str):
     """
     Extracts data to be displayed in UI after research.
     -------------
