@@ -32,13 +32,15 @@ class BrowserApp(App):
         prot_name = event.value
         results = await get_search_results(UNIPROT_API_URL, prot_name) 
         display_data = extract_display_data(results)
+        status = self.query_one("#status", Static)
+        table = self.query_one(DataTable)
         if isinstance(display_data, str):
-            status = self.query_one("#status", Static)
+            table.display = False
             status.display = True
             status.update(display_data)
         else:
+            status.display = False
             ROWS: list[tuple[int, str, str, str]] = _data_as_ROWS(display_data)
-            table = self.query_one(DataTable)
             table.clear(columns=True)
             table.display = True
             table.cursor_type = "row"
